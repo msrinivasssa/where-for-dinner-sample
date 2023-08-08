@@ -5,7 +5,7 @@ metadata:
   namespace: my-apps
 spec:
   virtualhost:
-    fqdn: where-for-dinner.<UPDATE ME>
+    fqdn: where-for-dinner.taptsm.cloudfocused.in
   routes:
   - conditions:
     - prefix: /

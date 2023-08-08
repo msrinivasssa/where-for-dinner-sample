@@ -1,0 +1,21 @@
+SOURCE_IMAGE = os.getenv("SOURCE_IMAGE", default='acrmsrinivasssa.azurecr.io/taptsm/where-for-dinner-source')
+LOCAL_PATH = os.getenv("LOCAL_PATH", default='.')
+NAMESPACE = os.getenv("NAMESPACE", default='my-apps')
+
+k8s_custom_deploy(
+    'where-for-dinner-availability',
+    apply_cmd="tanzu apps workload apply -f developer/availability-workload.yml --update-strategy replace --debug --live-update" +
+               " --local-path " + LOCAL_PATH +
+               " --source-image " + SOURCE_IMAGE +
+               " --namespace " + NAMESPACE +
+               " --yes --output yaml",
+    delete_cmd="tanzu apps workload delete -f config/workload.yaml --namespace " + NAMESPACE + " --yes",
+    container_selector='workload',
+    deps=['pom.xml', './target/classes'],
+    live_update=[
+      sync('./target/classes', '/workspace/BOOT-INF/classes')
+    ]
+)
+
+k8s_resource('where-for-dinner-availability', port_forwards=["8080:8080"],
+            extra_pod_selectors=[{'carto.run/workload-name': 'where-for-dinner-availability', 'app.kubernetes.io/component': 'run'}])
